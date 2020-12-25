@@ -2,7 +2,7 @@ package user
 
 import (
 	"database/sql"
-	"github.com/ypeckstadt/golang-graphql-study/pkg/models"
+	"github.com/ypeckstadt/golang-graphql-study/pkg/boiled"
 )
 
 // New creates new User service
@@ -20,10 +20,10 @@ func Initialize(db *sql.DB, uuid UUID) User {
 
 // Service represents user service interface
 type Service interface {
-	Create(name string) (models.User, error)
-	Update(uuid string, request UpdateRequest) (models.User, error)
-	Get(uuid string) (models.User, error)
-	List() (models.UserSlice, error)
+	Create(name string) (boiled.User, error)
+	Update(uuid string, request UpdateRequest) (boiled.User, error)
+	Get(uuid string) (boiled.User, error)
+	List() (boiled.UserSlice, error)
 	Delete(uuid string) error
 }
 

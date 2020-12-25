@@ -47,5 +47,5 @@ boiler-update:
 	@echo "Removing models"
 	@rm -rf models
 	@echo "Generating models ..."
-	@sqlboiler psql --struct-tag-casing camel -o ./pkg/models
+	@sqlboiler psql --struct-tag-casing camel -o ./pkg/boiled -p boiled
 	@echo "SQLBOILER models updated"
