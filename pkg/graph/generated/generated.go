@@ -14,7 +14,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/introspection"
 	gqlparser "github.com/vektah/gqlparser/v2"
 	"github.com/vektah/gqlparser/v2/ast"
-	"github.com/ypeckstadt/golang-graphql-study/pkg/graph/model"
+	gqlmodel "github.com/ypeckstadt/golang-graphql-study/pkg/graph/model"
 )
 
 // region    ************************** generated!.gotpl **************************
@@ -40,14 +40,14 @@ type ResolverRoot interface {
 }
 
 type DirectiveRoot struct {
-	HasRole func(ctx context.Context, obj interface{}, next graphql.Resolver, role model.Role) (res interface{}, err error)
+	HasRole func(ctx context.Context, obj interface{}, next graphql.Resolver, role gqlmodel.Role) (res interface{}, err error)
 }
 
 type ComplexityRoot struct {
 	MyMutation struct {
-		CreateUser func(childComplexity int, user model.UserInput) int
+		CreateUser func(childComplexity int, user gqlmodel.UserInput) int
 		DeleteUser func(childComplexity int, uuid string) int
-		UpdateUser func(childComplexity int, uuid string, update model.UserInput) int
+		UpdateUser func(childComplexity int, uuid string, update gqlmodel.UserInput) int
 	}
 
 	MyQuery struct {
@@ -62,13 +62,13 @@ type ComplexityRoot struct {
 }
 
 type MyMutationResolver interface {
-	CreateUser(ctx context.Context, user model.UserInput) (*model.User, error)
-	UpdateUser(ctx context.Context, uuid string, update model.UserInput) (*model.User, error)
+	CreateUser(ctx context.Context, user gqlmodel.UserInput) (*gqlmodel.User, error)
+	UpdateUser(ctx context.Context, uuid string, update gqlmodel.UserInput) (*gqlmodel.User, error)
 	DeleteUser(ctx context.Context, uuid string) (bool, error)
 }
 type MyQueryResolver interface {
-	User(ctx context.Context, uuid string) (*model.User, error)
-	Users(ctx context.Context) ([]*model.User, error)
+	User(ctx context.Context, uuid string) (*gqlmodel.User, error)
+	Users(ctx context.Context) ([]*gqlmodel.User, error)
 }
 
 type executableSchema struct {
@@ -96,7 +96,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.MyMutation.CreateUser(childComplexity, args["user"].(model.UserInput)), true
+		return e.complexity.MyMutation.CreateUser(childComplexity, args["user"].(gqlmodel.UserInput)), true
 
 	case "MyMutation.deleteUser":
 		if e.complexity.MyMutation.DeleteUser == nil {
@@ -120,7 +120,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.MyMutation.UpdateUser(childComplexity, args["uuid"].(string), args["update"].(model.UserInput)), true
+		return e.complexity.MyMutation.UpdateUser(childComplexity, args["uuid"].(string), args["update"].(gqlmodel.UserInput)), true
 
 	case "MyQuery.user":
 		if e.complexity.MyQuery.User == nil {
@@ -264,7 +264,7 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 func (ec *executionContext) dir_hasRole_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.Role
+	var arg0 gqlmodel.Role
 	if tmp, ok := rawArgs["role"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("role"))
 		arg0, err = ec.unmarshalNRole2githubᚗcomᚋypeckstadtᚋgolangᚑgraphqlᚑstudyᚋpkgᚋgraphᚋmodelᚐRole(ctx, tmp)
@@ -279,7 +279,7 @@ func (ec *executionContext) dir_hasRole_args(ctx context.Context, rawArgs map[st
 func (ec *executionContext) field_MyMutation_createUser_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.UserInput
+	var arg0 gqlmodel.UserInput
 	if tmp, ok := rawArgs["user"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("user"))
 		arg0, err = ec.unmarshalNUserInput2githubᚗcomᚋypeckstadtᚋgolangᚑgraphqlᚑstudyᚋpkgᚋgraphᚋmodelᚐUserInput(ctx, tmp)
@@ -318,7 +318,7 @@ func (ec *executionContext) field_MyMutation_updateUser_args(ctx context.Context
 		}
 	}
 	args["uuid"] = arg0
-	var arg1 model.UserInput
+	var arg1 gqlmodel.UserInput
 	if tmp, ok := rawArgs["update"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("update"))
 		arg1, err = ec.unmarshalNUserInput2githubᚗcomᚋypeckstadtᚋgolangᚑgraphqlᚑstudyᚋpkgᚋgraphᚋmodelᚐUserInput(ctx, tmp)
@@ -423,7 +423,7 @@ func (ec *executionContext) _MyMutation_createUser(ctx context.Context, field gr
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.MyMutation().CreateUser(rctx, args["user"].(model.UserInput))
+		return ec.resolvers.MyMutation().CreateUser(rctx, args["user"].(gqlmodel.UserInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -435,7 +435,7 @@ func (ec *executionContext) _MyMutation_createUser(ctx context.Context, field gr
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.User)
+	res := resTmp.(*gqlmodel.User)
 	fc.Result = res
 	return ec.marshalNUser2ᚖgithubᚗcomᚋypeckstadtᚋgolangᚑgraphqlᚑstudyᚋpkgᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
 }
@@ -465,7 +465,7 @@ func (ec *executionContext) _MyMutation_updateUser(ctx context.Context, field gr
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.MyMutation().UpdateUser(rctx, args["uuid"].(string), args["update"].(model.UserInput))
+		return ec.resolvers.MyMutation().UpdateUser(rctx, args["uuid"].(string), args["update"].(gqlmodel.UserInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -477,7 +477,7 @@ func (ec *executionContext) _MyMutation_updateUser(ctx context.Context, field gr
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.User)
+	res := resTmp.(*gqlmodel.User)
 	fc.Result = res
 	return ec.marshalNUser2ᚖgithubᚗcomᚋypeckstadtᚋgolangᚑgraphqlᚑstudyᚋpkgᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
 }
@@ -558,7 +558,7 @@ func (ec *executionContext) _MyQuery_user(ctx context.Context, field graphql.Col
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*model.User)
+	res := resTmp.(*gqlmodel.User)
 	fc.Result = res
 	return ec.marshalOUser2ᚖgithubᚗcomᚋypeckstadtᚋgolangᚑgraphqlᚑstudyᚋpkgᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
 }
@@ -593,7 +593,7 @@ func (ec *executionContext) _MyQuery_users(ctx context.Context, field graphql.Co
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*model.User)
+	res := resTmp.([]*gqlmodel.User)
 	fc.Result = res
 	return ec.marshalNUser2ᚕᚖgithubᚗcomᚋypeckstadtᚋgolangᚑgraphqlᚑstudyᚋpkgᚋgraphᚋmodelᚐUserᚄ(ctx, field.Selections, res)
 }
@@ -669,7 +669,7 @@ func (ec *executionContext) _MyQuery___schema(ctx context.Context, field graphql
 	return ec.marshalO__Schema2ᚖgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐSchema(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _User_uuid(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
+func (ec *executionContext) _User_uuid(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.User) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -704,7 +704,7 @@ func (ec *executionContext) _User_uuid(ctx context.Context, field graphql.Collec
 	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _User_name(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
+func (ec *executionContext) _User_name(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.User) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -1826,8 +1826,8 @@ func (ec *executionContext) ___Type_ofType(ctx context.Context, field graphql.Co
 
 // region    **************************** input.gotpl *****************************
 
-func (ec *executionContext) unmarshalInputUserInput(ctx context.Context, obj interface{}) (model.UserInput, error) {
-	var it model.UserInput
+func (ec *executionContext) unmarshalInputUserInput(ctx context.Context, obj interface{}) (gqlmodel.UserInput, error) {
+	var it gqlmodel.UserInput
 	var asMap = obj.(map[string]interface{})
 
 	for k, v := range asMap {
@@ -1952,7 +1952,7 @@ func (ec *executionContext) _MyQuery(ctx context.Context, sel ast.SelectionSet) 
 
 var userImplementors = []string{"User"}
 
-func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj *model.User) graphql.Marshaler {
+func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.User) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, userImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -2257,13 +2257,13 @@ func (ec *executionContext) marshalNID2string(ctx context.Context, sel ast.Selec
 	return res
 }
 
-func (ec *executionContext) unmarshalNRole2githubᚗcomᚋypeckstadtᚋgolangᚑgraphqlᚑstudyᚋpkgᚋgraphᚋmodelᚐRole(ctx context.Context, v interface{}) (model.Role, error) {
-	var res model.Role
+func (ec *executionContext) unmarshalNRole2githubᚗcomᚋypeckstadtᚋgolangᚑgraphqlᚑstudyᚋpkgᚋgraphᚋmodelᚐRole(ctx context.Context, v interface{}) (gqlmodel.Role, error) {
+	var res gqlmodel.Role
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNRole2githubᚗcomᚋypeckstadtᚋgolangᚑgraphqlᚑstudyᚋpkgᚋgraphᚋmodelᚐRole(ctx context.Context, sel ast.SelectionSet, v model.Role) graphql.Marshaler {
+func (ec *executionContext) marshalNRole2githubᚗcomᚋypeckstadtᚋgolangᚑgraphqlᚑstudyᚋpkgᚋgraphᚋmodelᚐRole(ctx context.Context, sel ast.SelectionSet, v gqlmodel.Role) graphql.Marshaler {
 	return v
 }
 
@@ -2282,11 +2282,11 @@ func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.S
 	return res
 }
 
-func (ec *executionContext) marshalNUser2githubᚗcomᚋypeckstadtᚋgolangᚑgraphqlᚑstudyᚋpkgᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v model.User) graphql.Marshaler {
+func (ec *executionContext) marshalNUser2githubᚗcomᚋypeckstadtᚋgolangᚑgraphqlᚑstudyᚋpkgᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v gqlmodel.User) graphql.Marshaler {
 	return ec._User(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNUser2ᚕᚖgithubᚗcomᚋypeckstadtᚋgolangᚑgraphqlᚑstudyᚋpkgᚋgraphᚋmodelᚐUserᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.User) graphql.Marshaler {
+func (ec *executionContext) marshalNUser2ᚕᚖgithubᚗcomᚋypeckstadtᚋgolangᚑgraphqlᚑstudyᚋpkgᚋgraphᚋmodelᚐUserᚄ(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.User) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -2323,7 +2323,7 @@ func (ec *executionContext) marshalNUser2ᚕᚖgithubᚗcomᚋypeckstadtᚋgolan
 	return ret
 }
 
-func (ec *executionContext) marshalNUser2ᚖgithubᚗcomᚋypeckstadtᚋgolangᚑgraphqlᚑstudyᚋpkgᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v *model.User) graphql.Marshaler {
+func (ec *executionContext) marshalNUser2ᚖgithubᚗcomᚋypeckstadtᚋgolangᚑgraphqlᚑstudyᚋpkgᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.User) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "must not be null")
@@ -2333,7 +2333,7 @@ func (ec *executionContext) marshalNUser2ᚖgithubᚗcomᚋypeckstadtᚋgolang�
 	return ec._User(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNUserInput2githubᚗcomᚋypeckstadtᚋgolangᚑgraphqlᚑstudyᚋpkgᚋgraphᚋmodelᚐUserInput(ctx context.Context, v interface{}) (model.UserInput, error) {
+func (ec *executionContext) unmarshalNUserInput2githubᚗcomᚋypeckstadtᚋgolangᚑgraphqlᚑstudyᚋpkgᚋgraphᚋmodelᚐUserInput(ctx context.Context, v interface{}) (gqlmodel.UserInput, error) {
 	res, err := ec.unmarshalInputUserInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
@@ -2615,7 +2615,7 @@ func (ec *executionContext) marshalOString2ᚖstring(ctx context.Context, sel as
 	return graphql.MarshalString(*v)
 }
 
-func (ec *executionContext) marshalOUser2ᚖgithubᚗcomᚋypeckstadtᚋgolangᚑgraphqlᚑstudyᚋpkgᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v *model.User) graphql.Marshaler {
+func (ec *executionContext) marshalOUser2ᚖgithubᚗcomᚋypeckstadtᚋgolangᚑgraphqlᚑstudyᚋpkgᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.User) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}

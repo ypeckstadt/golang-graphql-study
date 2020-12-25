@@ -5,27 +5,27 @@ package graph
 
 import (
 	"context"
-	"github.com/ypeckstadt/golang-graphql-study/pkg/graph/generated"
-	"github.com/ypeckstadt/golang-graphql-study/pkg/graph/model"
+	gqlmodel "github.com/ypeckstadt/golang-graphql-study/pkg/graph/model"
 	"log"
 
+	"github.com/ypeckstadt/golang-graphql-study/pkg/graph/generated"
 	"github.com/ypeckstadt/golang-graphql-study/pkg/server/user"
 )
 
-func (r *myMutationResolver) CreateUser(ctx context.Context, user model.UserInput) (*model.User, error) {
+func (r *myMutationResolver) CreateUser(ctx context.Context, user gqlmodel.UserInput) (*gqlmodel.User, error) {
 	newUser, err := r.User.Create(user.Name)
 	if err != nil {
 		return nil, err
 	}
 
 	log.Printf("User saved with identifier: %d", newUser.ID)
-	return &model.User{
+	return &gqlmodel.User{
 		UUID: newUser.UUID,
 		Name: newUser.Name,
 	}, nil
 }
 
-func (r *myMutationResolver) UpdateUser(ctx context.Context, uuid string, update model.UserInput) (*model.User, error) {
+func (r *myMutationResolver) UpdateUser(ctx context.Context, uuid string, update gqlmodel.UserInput) (*gqlmodel.User, error) {
 	// Update user
 	user, err := r.User.Update(uuid, user.UpdateRequest{Name: update.Name})
 	if err != nil {
@@ -35,7 +35,7 @@ func (r *myMutationResolver) UpdateUser(ctx context.Context, uuid string, update
 	log.Printf("User with identifier: %d updated", user.ID)
 
 	// Convert and return via Graph QL
-	return &model.User{
+	return &gqlmodel.User{
 		UUID: user.UUID,
 		Name: user.Name,
 	}, nil
@@ -49,25 +49,25 @@ func (r *myMutationResolver) DeleteUser(ctx context.Context, uuid string) (bool,
 	return true, nil
 }
 
-func (r *myQueryResolver) User(ctx context.Context, uuid string) (*model.User, error) {
+func (r *myQueryResolver) User(ctx context.Context, uuid string) (*gqlmodel.User, error) {
 	user, err := r.Resolver.User.Get(uuid)
 	if err != nil {
 		return nil, err
 	}
-	return &model.User{
+	return &gqlmodel.User{
 		UUID: user.UUID,
 		Name: user.Name,
 	}, nil
 }
 
-func (r *myQueryResolver) Users(ctx context.Context) ([]*model.User, error) {
-	var users []*model.User
+func (r *myQueryResolver) Users(ctx context.Context) ([]*gqlmodel.User, error) {
+	var users []*gqlmodel.User
 	savedUsers, err := r.Resolver.User.List()
 	if err != nil {
 		return nil, err
 	}
 	for i, savedUser := range savedUsers {
-		var user model.User
+		var user gqlmodel.User
 		savedUser = savedUsers[i]
 		user.UUID = savedUser.UUID
 		user.Name = savedUser.Name
@@ -76,10 +76,10 @@ func (r *myQueryResolver) Users(ctx context.Context) ([]*model.User, error) {
 	return users, nil
 }
 
-// MyMutation returns generated1.MyMutationResolver implementation.
+// MyMutation returns generated.MyMutationResolver implementation.
 func (r *Resolver) MyMutation() generated.MyMutationResolver { return &myMutationResolver{r} }
 
-// MyQuery returns generated1.MyQueryResolver implementation.
+// MyQuery returns generated.MyQueryResolver implementation.
 func (r *Resolver) MyQuery() generated.MyQueryResolver { return &myQueryResolver{r} }
 
 type myMutationResolver struct{ *Resolver }

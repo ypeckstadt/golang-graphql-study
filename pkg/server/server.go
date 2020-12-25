@@ -8,7 +8,7 @@ import (
 	"github.com/ypeckstadt/go-utils"
 	"github.com/ypeckstadt/golang-graphql-study/pkg/graph"
 	"github.com/ypeckstadt/golang-graphql-study/pkg/graph/generated"
-	"github.com/ypeckstadt/golang-graphql-study/pkg/graph/model"
+	gqlmodel "github.com/ypeckstadt/golang-graphql-study/pkg/graph/model"
 	"github.com/ypeckstadt/golang-graphql-study/pkg/server/user"
 	"github.com/ypeckstadt/golang-graphql-study/pkg/utils/environment"
 	"github.com/ypeckstadt/golang-graphql-study/pkg/utils/postgres"
@@ -16,8 +16,6 @@ import (
 	"log"
 	"net/http"
 )
-
-const defaultPort = "8080"
 
 // Start starts the client application
 func Start(env environment.Environment) error {
@@ -52,7 +50,7 @@ func Start(env environment.Environment) error {
 	return nil
 }
 
-func hasRoleDirective(ctx context.Context, obj interface{}, next graphql.Resolver, role model.Role) (res interface{}, err error) {
+func hasRoleDirective(ctx context.Context, obj interface{}, next graphql.Resolver, role gqlmodel.Role) (res interface{}, err error) {
 	log.Printf("Inside hasRoleDirective - ignore the role check for now")
 	return next(ctx)
 }
