@@ -1,0 +1,21 @@
+type User {
+  uuid: ID!
+  name: String!
+}
+
+"Passed to createUser to create a new user"
+input UserInput {
+  "The user name"
+  name: String!
+}
+
+extend type MyMutation {
+  createUser(user: UserInput!): User!
+  updateUser(uuid: ID!, update: UserInput!): User!
+  deleteUser(uuid: ID!): Boolean!
+}
+
+extend type MyQuery {
+  user(uuid: ID!): User
+  users: [User!]!
+}

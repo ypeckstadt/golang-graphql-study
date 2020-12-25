@@ -47,10 +47,12 @@ type ComplexityRoot struct {
 	MyMutation struct {
 		CreateUser func(childComplexity int, user gqlmodel.UserInput) int
 		DeleteUser func(childComplexity int, uuid string) int
+		Ping       func(childComplexity int) int
 		UpdateUser func(childComplexity int, uuid string, update gqlmodel.UserInput) int
 	}
 
 	MyQuery struct {
+		Ping  func(childComplexity int) int
 		User  func(childComplexity int, uuid string) int
 		Users func(childComplexity int) int
 	}
@@ -62,11 +64,13 @@ type ComplexityRoot struct {
 }
 
 type MyMutationResolver interface {
+	Ping(ctx context.Context) (bool, error)
 	CreateUser(ctx context.Context, user gqlmodel.UserInput) (*gqlmodel.User, error)
 	UpdateUser(ctx context.Context, uuid string, update gqlmodel.UserInput) (*gqlmodel.User, error)
 	DeleteUser(ctx context.Context, uuid string) (bool, error)
 }
 type MyQueryResolver interface {
+	Ping(ctx context.Context) (bool, error)
 	User(ctx context.Context, uuid string) (*gqlmodel.User, error)
 	Users(ctx context.Context) ([]*gqlmodel.User, error)
 }
@@ -110,6 +114,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.MyMutation.DeleteUser(childComplexity, args["uuid"].(string)), true
 
+	case "MyMutation.ping":
+		if e.complexity.MyMutation.Ping == nil {
+			break
+		}
+
+		return e.complexity.MyMutation.Ping(childComplexity), true
+
 	case "MyMutation.updateUser":
 		if e.complexity.MyMutation.UpdateUser == nil {
 			break
@@ -121,6 +132,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.MyMutation.UpdateUser(childComplexity, args["uuid"].(string), args["update"].(gqlmodel.UserInput)), true
+
+	case "MyQuery.ping":
+		if e.complexity.MyQuery.Ping == nil {
+			break
+		}
+
+		return e.complexity.MyQuery.Ping(childComplexity), true
 
 	case "MyQuery.user":
 		if e.complexity.MyQuery.User == nil {
@@ -219,23 +237,28 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 }
 
 var sources = []*ast.Source{
-	{Name: "pkg/graph/schema.graphqls", Input: `schema {
+	{Name: "pkg/graph/schema/schema.graphqls", Input: `schema {
   query: MyQuery
   mutation: MyMutation
 }
 
 type MyQuery {
-  user(uuid: ID!): User
-  users: [User!]!
+  ping:Boolean!
 }
 
 type MyMutation {
-  createUser(user: UserInput!): User!
-  updateUser(uuid: ID!, update: UserInput!): User!
-  deleteUser(uuid: ID!): Boolean!
+  ping: Boolean!
 }
 
-type User {
+"Prevents access to a field if the user doesnt have the matching role"
+directive @hasRole(role: Role!) on FIELD_DEFINITION
+
+enum Role {
+  ADMIN
+  OWNER
+}
+`, BuiltIn: false},
+	{Name: "pkg/graph/schema/user.graphqls", Input: `type User {
   uuid: ID!
   name: String!
 }
@@ -246,12 +269,15 @@ input UserInput {
   name: String!
 }
 
-"Prevents access to a field if the user doesnt have the matching role"
-directive @hasRole(role: Role!) on FIELD_DEFINITION
+extend type MyMutation {
+  createUser(user: UserInput!): User!
+  updateUser(uuid: ID!, update: UserInput!): User!
+  deleteUser(uuid: ID!): Boolean!
+}
 
-enum Role {
-  ADMIN
-  OWNER
+extend type MyQuery {
+  user(uuid: ID!): User
+  users: [User!]!
 }
 `, BuiltIn: false},
 }
@@ -398,6 +424,41 @@ func (ec *executionContext) field___Type_fields_args(ctx context.Context, rawArg
 
 // region    **************************** field.gotpl *****************************
 
+func (ec *executionContext) _MyMutation_ping(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "MyMutation",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.MyMutation().Ping(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _MyMutation_createUser(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -508,6 +569,41 @@ func (ec *executionContext) _MyMutation_deleteUser(ctx context.Context, field gr
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.MyMutation().DeleteUser(rctx, args["uuid"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _MyQuery_ping(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "MyQuery",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.MyQuery().Ping(rctx)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1869,6 +1965,11 @@ func (ec *executionContext) _MyMutation(ctx context.Context, sel ast.SelectionSe
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("MyMutation")
+		case "ping":
+			out.Values[i] = ec._MyMutation_ping(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		case "createUser":
 			out.Values[i] = ec._MyMutation_createUser(ctx, field)
 			if out.Values[i] == graphql.Null {
@@ -1910,6 +2011,20 @@ func (ec *executionContext) _MyQuery(ctx context.Context, sel ast.SelectionSet) 
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("MyQuery")
+		case "ping":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._MyQuery_ping(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
 		case "user":
 			field := field
 			out.Concurrently(i, func() (res graphql.Marshaler) {
