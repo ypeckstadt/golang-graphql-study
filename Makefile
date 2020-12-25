@@ -1,7 +1,7 @@
 SHELL := /bin/bash
 
 #### BUILD
-.PHONY: build-api build-sync
+.PHONY: build-server build-client
 build-server:
 	@echo "building server ..."
 	@cd cmd/server && go build
