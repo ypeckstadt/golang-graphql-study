@@ -1,0 +1,24 @@
+version: '3.6'
+
+volumes:
+  golang-graphql-study-postgres:
+    name: golang-graphql-study-postgres
+
+services:
+  golang-graphql-study-postgres:
+    build: "./docker-files/golang-graphql-study-postgres"
+    container_name: golang-graphql-study-postgres
+    image: golang-graphql-study-postgres
+    restart: always
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_DB: 'golang-graphql-study'
+      POSTGRES_USER: 'postgres'
+      POSTGRES_PASSWORD: 'postgres'
+    volumes:
+      - 'golang-graphql-study-postgres:/var/lib/postgresql/data'
+
+networks:
+  default:
+    name: golang-graphql-study
